@@ -1,4 +1,5 @@
 import './news.css';
+import newsPlaceholder from '../../../assets/news-placeholder.svg';
 import { IArticle, NewsCardArticle } from '../../../types/news-api';
 
 class News {
@@ -44,7 +45,7 @@ class News {
                 newsItem.classList.add('alt');
             }
 
-            photoEl.style.backgroundImage = `url(${item.urlToImage ?? 'img/news_placeholder.jpg'})`;
+            photoEl.style.backgroundImage = `url(${item.urlToImage ?? newsPlaceholder})`;
             authorEl.textContent = item.author ?? item.source.name;
             dateEl.textContent = item.publishedAt.slice(0, 10).split('-').reverse().join('-');
             titleEl.textContent = item.title;
