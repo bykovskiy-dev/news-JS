@@ -5,6 +5,16 @@
     width: 100%;
 }
 
+.news__empty {
+    margin: 0 auto;
+    padding: clamp(1.5rem, 4vw, 2.5rem) 1rem;
+    max-width: min(100%, 760px);
+    text-align: center;
+    color: var(--color-muted, #9aa3b2);
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    font-weight: 600;
+}
+
 .news__item {
     display: flex;
     flex-direction: column;

@@ -6,6 +6,21 @@ class News {
     private static readonly MAX_ITEMS = 10;
 
     public draw(data: IArticle[]): void {
+        const newsContainer: Element | null = document.querySelector('.news');
+        if (newsContainer === null) {
+            return;
+        }
+
+        newsContainer.innerHTML = '';
+
+        if (data.length === 0) {
+            const emptyMessage: HTMLParagraphElement = document.createElement('p');
+            emptyMessage.className = 'news__empty';
+            emptyMessage.textContent = 'Have no news';
+            newsContainer.appendChild(emptyMessage);
+            return;
+        }
+
         const news: NewsCardArticle[] =
             data.length >= News.MAX_ITEMS ? data.filter((_, idx) => idx < News.MAX_ITEMS) : data;
 
@@ -56,11 +71,7 @@ class News {
             fragment.append(newsClone);
         });
 
-        const newsContainer: Element | null = document.querySelector('.news');
-        if (newsContainer !== null) {
-            newsContainer.innerHTML = '';
-            newsContainer.appendChild(fragment);
-        }
+        newsContainer.appendChild(fragment);
     }
 }
 
