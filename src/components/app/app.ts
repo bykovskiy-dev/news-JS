@@ -1,25 +1,25 @@
 import AppController from '../controller/controller';
 import { AppView } from '../view/appView';
-import { IEverythingResponse } from '../../types/news-api';
+import { EverythingDrawCallback } from '../../types/news-api';
 
 class App {
-    controller: AppController;
-    view: AppView;
+    private readonly controller: AppController;
+    private readonly view: AppView;
 
-    constructor() {
+    public constructor() {
         this.controller = new AppController();
         this.view = new AppView();
     }
 
-    start(): void {
-        const sourcesEl = document.querySelector('.sources');
-        if (!sourcesEl) {
+    public start(): void {
+        const sourcesEl: Element | null = document.querySelector('.sources');
+        if (sourcesEl === null) {
             return;
         }
 
-        sourcesEl.addEventListener('click', (e) =>
-            this.controller.getNews(e, (data: IEverythingResponse) => this.view.drawNews(data))
-        );
+        const onNewsLoaded: EverythingDrawCallback = (data) => this.view.drawNews(data);
+
+        sourcesEl.addEventListener('click', (e: Event) => this.controller.getNews(e, onNewsLoaded));
         this.controller.getSources((data) => this.view.drawSources(data));
     }
 }

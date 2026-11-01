@@ -1,55 +1,72 @@
-type RequestOptions = Record<string, string>;
+import {
+    ApiEndpoint,
+    ApiQueryParams,
+    ApiResponseByEndpoint,
+    HttpMethod,
+    ReadonlyApiCredentials,
+} from '../../types/news-api';
 
-interface GetRespParams {
-    endpoint: string;
-    options?: RequestOptions;
+interface GetRespParams<E extends ApiEndpoint> {
+    endpoint: E;
+    options?: ApiQueryParams;
 }
 
-class Loader {
-    baseLink: string;
-    options: RequestOptions;
+type ResponseCallback<TResponse> = (data: TResponse) => void;
 
-    constructor(baseLink: string, options: RequestOptions) {
+class Loader {
+    private readonly baseLink: string;
+    private readonly options: ReadonlyApiCredentials;
+
+    public constructor(baseLink: string, options: ReadonlyApiCredentials) {
         this.baseLink = baseLink;
         this.options = options;
     }
 
-    getResp(
-        { endpoint, options = {} }: GetRespParams,
-        callback: (data: unknown) => void = () => {
+    public getResp<E extends ApiEndpoint>(
+        { endpoint, options = {} }: GetRespParams<E>,
+        callback: ResponseCallback<ApiResponseByEndpoint[E]> = () => {
             console.error('No callback for GET response');
         }
     ): void {
-        this.load('GET', endpoint, callback, options);
+        this.load(HttpMethod.GET, endpoint, callback, options);
     }
 
-    errorHandler(res: Response): Response {
+    private errorHandler(res: Response): Response {
         if (!res.ok) {
-            if (res.status === 401 || res.status === 404)
+            if (res.status === 401 || res.status === 404) {
                 console.log(`Sorry, but there is ${res.status} error: ${res.statusText}`);
+            }
             throw Error(res.statusText);
         }
 
         return res;
     }
 
-    makeUrl(options: RequestOptions, endpoint: string): string {
-        const urlOptions = { ...this.options, ...options };
+    private makeUrl(options: ApiQueryParams, endpoint: ApiEndpoint): string {
+        const urlOptions: Record<string, string> = { ...this.options, ...options };
         let url = `${this.baseLink}${endpoint}?`;
 
-        Object.keys(urlOptions).forEach((key) => {
-            url += `${key}=${urlOptions[key]}&`;
+        Object.keys(urlOptions).forEach((key: string) => {
+            const value: string | undefined = urlOptions[key];
+            if (value !== undefined) {
+                url += `${key}=${value}&`;
+            }
         });
 
         return url.slice(0, -1);
     }
 
-    load(method: string, endpoint: string, callback: (data: unknown) => void, options: RequestOptions = {}): void {
+    private load<TResponse>(
+        method: HttpMethod,
+        endpoint: ApiEndpoint,
+        callback: ResponseCallback<TResponse>,
+        options: ApiQueryParams = {}
+    ): void {
         fetch(this.makeUrl(options, endpoint), { method })
-            .then((res) => this.errorHandler(res))
-            .then((res) => res.json())
-            .then((data: unknown) => callback(data))
-            .catch((err) => console.error(err));
+            .then((res: Response) => this.errorHandler(res))
+            .then((res: Response) => res.json() as Promise<TResponse>)
+            .then((data: TResponse) => callback(data))
+            .catch((err: unknown) => console.error(err));
     }
 }
 

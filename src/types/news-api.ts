@@ -1,4 +1,16 @@
-export type ApiStatus = 'ok' | 'error';
+export enum ApiStatus {
+    Ok = 'ok',
+    Error = 'error',
+}
+
+export enum HttpMethod {
+    GET = 'GET',
+}
+
+export enum ApiEndpoint {
+    Sources = 'sources',
+    Everything = 'everything',
+}
 
 export interface ISource {
     id: string;
@@ -36,3 +48,24 @@ export interface IEverythingResponse {
     totalResults: number;
     articles: IArticle[];
 }
+
+export type ApiResponseByEndpoint = {
+    [ApiEndpoint.Sources]: ISourcesResponse;
+    [ApiEndpoint.Everything]: IEverythingResponse;
+};
+
+export type ApiQueryParams = Partial<Record<string, string>>;
+
+export type ReadonlyApiCredentials = Readonly<{
+    apiKey: string;
+}>;
+
+export type NewsCardArticle = Pick<
+    IArticle,
+    'title' | 'description' | 'url' | 'urlToImage' | 'author' | 'publishedAt' | 'source'
+>;
+
+export type SourcesDrawCallback = (data: ISourcesResponse) => void;
+export type EverythingDrawCallback = (data: IEverythingResponse) => void;
+
+export type ApiErrorStatus = 401 | 404;

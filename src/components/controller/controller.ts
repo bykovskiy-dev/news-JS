@@ -1,37 +1,37 @@
 import AppLoader from './appLoader';
-import { IEverythingResponse, ISourcesResponse } from '../../types/news-api';
+import { ApiEndpoint, EverythingDrawCallback, SourcesDrawCallback } from '../../types/news-api';
 
 class AppController extends AppLoader {
-    getSources(callback: (data: ISourcesResponse) => void): void {
+    public getSources(callback: SourcesDrawCallback): void {
         super.getResp(
             {
-                endpoint: 'sources',
+                endpoint: ApiEndpoint.Sources,
             },
-            callback as (data: unknown) => void
+            callback
         );
     }
 
-    getNews(e: Event, callback: (data: IEverythingResponse) => void): void {
+    public getNews(e: Event, callback: EverythingDrawCallback): void {
         if (!(e.currentTarget instanceof Element)) {
             return;
         }
 
         let target: Element | null = e.target instanceof Element ? e.target : null;
-        const newsContainer = e.currentTarget;
+        const newsContainer: Element = e.currentTarget;
 
-        while (target && target !== newsContainer) {
+        while (target !== null && target !== newsContainer) {
             if (target.classList.contains('source__item')) {
-                const sourceId = target.getAttribute('data-source-id');
-                if (sourceId && newsContainer.getAttribute('data-source') !== sourceId) {
+                const sourceId: string | null = target.getAttribute('data-source-id');
+                if (sourceId !== null && newsContainer.getAttribute('data-source') !== sourceId) {
                     newsContainer.setAttribute('data-source', sourceId);
                     super.getResp(
                         {
-                            endpoint: 'everything',
+                            endpoint: ApiEndpoint.Everything,
                             options: {
                                 sources: sourceId,
                             },
                         },
-                        callback as (data: unknown) => void
+                        callback
                     );
                 }
                 return;
